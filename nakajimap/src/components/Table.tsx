@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { collection, doc, addDoc, getDoc, getDocs, deleteDoc, query, where } from "firebase/firestore"
+import { collection, doc, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore"
 import { styled } from "@mui/material/styles"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"

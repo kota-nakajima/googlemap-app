@@ -6,12 +6,12 @@ import { auth } from "../firebase"
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate()
-  const [currentUser, setCurrentUser] = useState<null | object>(null)
+  // const [currentUser, setCurrentUser] = useState<null | object>(null)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setCurrentUser(user)
+        // setCurrentUser(user)
       } else {
         navigate("/auth")
       }

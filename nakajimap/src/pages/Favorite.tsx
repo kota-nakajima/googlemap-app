@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../firebase"
-import RestaurantFilter from "../components/Filter"
 import FavoriteMap from "../components/FavoriteMap"
 import FavoriteTable from "../components/FavoriteTable"
 import { useAuth } from "../AuthContext"

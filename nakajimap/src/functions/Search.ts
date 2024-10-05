@@ -15,8 +15,9 @@ export const searchNearbyRestaurants = (
     })
 
     // Geocode APIを使用して住所を座標に変換
-    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${import.meta.env.VITE_GOOGLEMAP_API_KEY
-      }`
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${
+      import.meta.env.VITE_GOOGLEMAP_API_KEY
+    }`
 
     fetch(geocodeUrl)
       .then((response) => response.json())
@@ -52,7 +53,7 @@ export const searchNearbyRestaurants = (
             const filteredResults = results.filter((place: google.maps.places.PlaceResult) => {
               // user_ratings_total と rating が undefined でないことを確認
               if (place.user_ratings_total !== undefined && place.rating !== undefined) {
-                return place.user_ratings_total >= reviewCount && place.rating >= rating;
+                return place.user_ratings_total >= reviewCount && place.rating >= rating
               }
               return false
             })

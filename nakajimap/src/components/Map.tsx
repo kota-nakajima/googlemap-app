@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 
 declare global {
   interface Window {
@@ -9,10 +9,10 @@ declare global {
 
 interface MapProps {
   results: any[]
-  onMarkerClick: (placeId: string) => void
+  // onMarkerClick: (placeId: string) => void
 }
 
-const Map = forwardRef(({ results, onMarkerClick }: MapProps, ref) => {
+const Map = forwardRef(({ results }: MapProps, ref) => {
   const mapRef = useRef<HTMLDivElement | null>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const [markers, setMarkers] = useState<

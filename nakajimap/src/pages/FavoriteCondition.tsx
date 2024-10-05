@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { db, auth } from "../firebase"
-import { Box, TextField, Typography, Button, Select, MenuItem } from "@mui/material"
+import { db } from "../firebase"
+import { Box, TextField, Typography, Button } from "@mui/material"
 import { query, where, collection, getDocs, doc, deleteDoc } from "firebase/firestore"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../AuthContext"
@@ -11,13 +11,12 @@ const FavoriteCondition: React.FC = () => {
   const [savedFilters, setSavedFilters] = useState<any[]>([])
   const priceLevels = [
     { label: "指定なし", p_level: undefined },
-
     { label: "¥", p_level: 1 },
     { label: "¥¥", p_level: 2 },
     { label: "¥¥¥", p_level: 3 },
     { label: "¥¥¥¥", p_level: 4 },
   ]
-  const getPriceLabel = (level) => {
+  const getPriceLabel = (level: number | undefined): string => {
     const priceLevel = priceLevels.find((pl) => pl.p_level === level)
     return priceLevel ? priceLevel.label : ""
   }
@@ -34,7 +33,11 @@ const FavoriteCondition: React.FC = () => {
       })
       setSavedFilters(filtersList)
     } catch (error) {
-      console.error("Error fetching filters: ", error.message)
+      if (error instanceof Error) {
+        console.error("Error fetching filters: ", error.message)
+      } else {
+        console.error("An unknown error occurred")
+      }
     }
   }
 

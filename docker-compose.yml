@@ -13,9 +13,22 @@ services:
       - VITE_MEASUREMENT_ID=${VITE_MEASUREMENT_ID}
       - VITE_PROJECT_ID=${VITE_PROJECT_ID}
       - VITE_STORAGE_BUCKET=${VITE_STORAGE_BUCKET}
-    volumes:
-      - ./nakajimap:/nakajimap
-      - /nakajimap/node_modules
     ports:
       - 3000:3000
     command: npm run dev
+# version: "3"
+# services:
+#   app:
+#     build: .
+#     ports:
+#       - 80:80 # NGINXのポートをホストとコンテナでマッピング
+#     environment:
+#       - VITE_APIKEY=${VITE_APIKEY}
+#       - VITE_APP_ID=${VITE_APP_ID}
+#       - VITE_AUTHDOMAIN=${VITE_AUTHDOMAIN}
+#       - VITE_DATABASEURL=${VITE_DATABASEURL}
+#       - VITE_GOOGLEMAP_API_KEY=${GOOGLEMAP_API_KEY}
+#       - VITE_MESSAGING_SENDER_ID=${VITE_MESSAGING_SENDER_ID}
+#       - VITE_MEASUREMENT_ID=${VITE_MEASUREMENT_ID}
+#       - VITE_PROJECT_ID=${VITE_PROJECT_ID}
+#       - VITE_STORAGE_BUCKET=${VITE_STORAGE_BUCKET}

@@ -41,7 +41,7 @@ const Home: React.FC = () => {
               )}
             </div>
             <div className="result-map">
-              <Map ref={mapRef} results={results} onMarkerClick={handleShopClick} />
+              <Map ref={mapRef} results={results} />
             </div>
           </div>
         </div>

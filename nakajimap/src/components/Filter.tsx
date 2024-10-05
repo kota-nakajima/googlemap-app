@@ -116,10 +116,10 @@ const RestaurantFilter: React.FC<FilterProps> = ({ handleResultsUpdate }) => {
         try {
           const results = await searchNearbyRestaurants(
             location,
-            radius,
+            radius ?? defaultParams.radius, // ここでデフォルト値を直接使う
             cuisine,
-            reviewCount,
-            rating,
+            reviewCount ?? defaultParams.reviewCount,
+            rating ?? defaultParams.rating,
             minBudget,
             maxBudget
           )

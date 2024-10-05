@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 
 declare global {
   interface Window {
