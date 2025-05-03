@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { collection, doc, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore"
+// import { collection, doc, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore"
+import { fetchFavorites, toggleFavorite } from "../lib/favorites"
 import { styled } from "@mui/material/styles"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
@@ -12,7 +13,7 @@ import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import TableSortLabel from "@mui/material/TableSortLabel"
-import { db } from "../firebase"
+// import { db } from "../firebase"
 import { useAuth } from "../AuthContext"
 
 interface TableProps {
@@ -32,43 +33,64 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
   const [rows, setRows] = useState<any[]>([])
   const [orderBy, setOrderBy] = useState<string>("n_review")
 
-  async function checkBookmark(place_id: string, userId: string) {
-    const q = query(collection(db, "favorite"), where("place_id", "==", place_id), where("userId", "==", userId))
-    const querySnapshot = await getDocs(q)
-    if (querySnapshot.empty) {
-      return false
-    }
+  // async function checkBookmark(place_id: string, userId: string) {
+  //   const q = query(collection(db, "favorite"), where("place_id", "==", place_id), where("userId", "==", userId))
+  //   const querySnapshot = await getDocs(q)
+  //   if (querySnapshot.empty) {
+  //     return false
+  //   }
+  //   const doc = querySnapshot.docs[0]
+  //   console.log(`Document found: ${doc.id}`, doc.data())
 
-    const doc = querySnapshot.docs[0]
-    console.log(`Document found: ${doc.id}`, doc.data())
-
-    // Bookmarkフィールドの存在と値を確認
-    return doc.data().bookmark === true
-  }
-
+  //   // Bookmarkフィールドの存在と値を確認
+  //   return doc.data().bookmark === true
+  // }
+  // async function checkBookmark(place_id: string, userId: string) {
+  //   const list = await fetchFavorites(userId)
+  //   return list.some((f: any) => f.place_id === place_id)
+  // }
   useEffect(() => {
-    async function fetchData() {
-      if (!currentUser) return
+    (async () => {
+      if (!currentUser) return;
+      const favs = await fetchFavorites(currentUser.uid);   // ←1 回だけ API
+      const bookmarkedIds = new Set(favs.map(f => f.place_id));
+  
+      const newRows = results.map(r => ({
+        place_id: r.place_id,
+        geometry: r.geometry,
+        shop: r.name,
+        vicinity: r.vicinity,
+        star: r.rating,
+        n_review: r.user_ratings_total,
+        business_status: r.business_status,
+        bookmark: bookmarkedIds.has(r.place_id),
+      }));
+      setRows(newRows);
+    })();
+  }, [results, currentUser]);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     if (!currentUser) return
 
-      const newRows = await Promise.all(
-        results.map(async (result) => {
-          const bookmark = await checkBookmark(result.place_id, currentUser.uid)
-          return {
-            place_id: result.place_id,
-            geometry: result.geometry,
-            shop: result.name,
-            vicinity: result.vicinity,
-            star: result.rating,
-            n_review: result.user_ratings_total,
-            business_status: result.business_status,
-            bookmark: bookmark,
-          }
-        })
-      )
-      setRows(newRows)
-    }
-    fetchData()
-  }, [results, currentUser])
+  //     const newRows = await Promise.all(
+  //       results.map(async (result) => {
+  //         const bookmark = await checkBookmark(result.place_id, currentUser.uid)
+  //         return {
+  //           place_id: result.place_id,
+  //           geometry: result.geometry,
+  //           shop: result.name,
+  //           vicinity: result.vicinity,
+  //           star: result.rating,
+  //           n_review: result.user_ratings_total,
+  //           business_status: result.business_status,
+  //           bookmark: bookmark,
+  //         }
+  //       })
+  //     )
+  //     setRows(newRows)
+  //   }
+  //   fetchData()
+  // }, [results, currentUser])
 
   const handleSortRequest = (property: string) => {
     if (orderBy !== property) {
@@ -103,26 +125,37 @@ const SearchResult: React.FC<TableProps> = ({ results, onShopClick }) => {
         bookmark,
       }
 
-      try {
-        const q = query(
-          collection(db, "favorite"),
-          where("userId", "==", currentUser.uid),
-          where("place_id", "==", place_id)
-        )
-        const querySnapshot = await getDocs(q)
+      // try {
+        // const q = query(
+        //   collection(db, "favorite"),
+        //   where("userId", "==", currentUser.uid),
+        //   where("place_id", "==", place_id)
+        // )
+        // const querySnapshot = await getDocs(q)
 
-        if (!querySnapshot.empty) {
-          // 既にお気に入りに登録されている場合
-          const docId = querySnapshot.docs[0].id
-          await deleteDoc(doc(db, "favorite", docId))
-          setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: false } : r)))
-        } else {
-          // お気に入りに登録されていない場合
-          await addDoc(collection(db, "favorite"), resultData)
-          setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: true } : r)))
-        }
-      } catch (error) {
-        console.error("Error writing document: ", error)
+        // if (!querySnapshot.empty) {
+        //   // 既にお気に入りに登録されている場合
+        //   const docId = querySnapshot.docs[0].id
+        //   await deleteDoc(doc(db, "favorite", docId))
+        //   setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: false } : r)))
+        // } else {
+        //   // お気に入りに登録されていない場合
+        //   await addDoc(collection(db, "favorite"), resultData)
+        //   setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: true } : r)))
+        // }
+      //   const res = await toggleFavorite(resultData) // PHP へ
+      //   setRows((prev) => prev.map((r) => (r.shop === row.shop ? { ...r, bookmark: res.state } : r)))
+      // } catch (error) {
+      //   console.error("Error writing document: ", error)
+      // }
+      try {
+        const { state } = await toggleFavorite(resultData); // ←PHP が返す真偽
+        setRows(prev => prev.map(r => (r.shop === row.shop ? { ...r, bookmark: state } : r)));
+      } catch (e) {
+        console.error(e);
+        alert("サーバーに保存できませんでした");
+        // ロールバック
+        setRows(prev => prev.map(r => (r.shop === row.shop ? row : r)));
       }
     }
   }

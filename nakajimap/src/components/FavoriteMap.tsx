@@ -46,14 +46,21 @@ const FavoriteMap = forwardRef(({ favorites, onMarkerClick }: MapProps, ref) => 
       const bounds = new google.maps.LatLngBounds()
 
       favorites.forEach((favorite) => {
-        const lat =
-          typeof favorite.geometry.location.lat === "function"
-            ? favorite.geometry.location.lat()
-            : favorite.geometry.location.lat
-        const lng =
-          typeof favorite.geometry.location.lng === "function"
-            ? favorite.geometry.location.lng()
-            : favorite.geometry.location.lng
+        // ★ 追加：geometry が文字列ならパースして正規化
+        const geo = typeof favorite.geometry === 'string'
+        ? JSON.parse(favorite.geometry)
+        : favorite.geometry
+
+        const { lat, lng } = geo.location ?? {}
+        if (lat == null || lng == null) return // 緯度経度が無ければスキップ
+        // const lat =
+        //   typeof favorite.geometry.location.lat === "function"
+        //     ? favorite.geometry.location.lat()
+        //     : favorite.geometry.location.lat
+        // const lng =
+        //   typeof favorite.geometry.location.lng === "function"
+        //     ? favorite.geometry.location.lng()
+        //     : favorite.geometry.location.lng
 
         if (typeof lat === "number" && typeof lng === "number") {
           const marker = new google.maps.Marker({

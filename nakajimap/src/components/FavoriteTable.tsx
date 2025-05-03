@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { styled } from "@mui/material/styles"
-import { collection, doc, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore"
-import { db } from "../firebase"
+import { toggleFavorite } from "../lib/favorites"
 import { useAuth } from "../AuthContext"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
@@ -62,28 +61,8 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
       business_status,
       bookmark,
     }
-
-    try {
-      const q = query(
-        collection(db, "favorite"),
-        where("userId", "==", currentUser.uid),
-        where("place_id", "==", place_id)
-      )
-      const querySnapshot = await getDocs(q)
-
-      if (!querySnapshot.empty) {
-        // 既にお気に入りに登録されている場合
-        const docId = querySnapshot.docs[0].id
-        await deleteDoc(doc(db, "favorite", docId))
-        setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: false } : r)))
-      } else {
-        // お気に入りに登録されていない場合
-        await addDoc(collection(db, "favorite"), resultData)
-        setRows((prevRows) => prevRows.map((r) => (r.shop === row.shop ? { ...r, bookmark: true } : r)))
-      }
-    } catch (error) {
-      console.error("Error writing document: ", error)
-    }
+    const res = await toggleFavorite(resultData)
+    setRows((prev) => prev.map((r) => (r.shop === row.shop ? { ...r, bookmark: res.state } : r)))
   }
 
   const sortedRows = rows.slice().sort((a, b) => {

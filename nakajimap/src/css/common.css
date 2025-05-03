@@ -11,11 +11,21 @@
   border-radius: 3px; /* 角を丸める */
 }
 
+/* === ナビゲーションバー（MUI AppBar）を全幅にする =================== */
+.MuiAppBar-root {
+  position: fixed;      /* 画面上に固定 */
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;         /* ビューポートの横幅ぜんぶ */
+  box-sizing: border-box;
+  z-index: 1200;        /* 他の要素より手前に出す */
+}
+
 /* ページ全体の設定 */
 html,
 body {
   background-color: #ffffff;
-  zoom: 0.95; /* ホーム画面がデカすぎたため縮小 */
   margin: 0px;
 }
 
@@ -31,8 +41,9 @@ body {
 
 /* 画面内に垂直配置するコンテンツの基本スタイル */
 .content {
-  width: 1200px; /* これを基準に横幅を揃える */
-  margin: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto;
   border: 3px solid #889;
   border-radius: 6px;
 }

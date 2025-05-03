@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Box, TextField, Typography, Button, MenuItem, Select } from "@mui/material"
 import { SelectChangeEvent } from "@mui/material/Select"
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore"
-import { db } from "../firebase"
+// import { addDoc, collection, getDocs, query, where } from "firebase/firestore"
+// import { db } from "../firebase"
+import { fetchFilters, addFilter } from "../lib/filters"
 import { useLocation } from "react-router-dom"
 import { searchNearbyRestaurants } from "../functions/Search"
 import { useAuth } from "../AuthContext"
@@ -165,28 +166,33 @@ const RestaurantFilter: React.FC<FilterProps> = ({ handleResultsUpdate }) => {
         }
 
         // 同じ条件が存在するかをチェックする
-        const q = query(
-          collection(db, "filters"),
-          where("userId", "==", currentUser.uid),
-          where("location", "==", location),
-          where("radius", "==", radius),
-          where("cuisine", "==", cuisine),
-          where("reviewCount", "==", reviewCount),
-          where("rating", "==", rating),
-          ...(minBudget !== undefined ? [where("minBudget", "==", minBudget)] : []),
-          ...(maxBudget !== undefined ? [where("maxBudget", "==", maxBudget)] : [])
-        )
+        // const q = query(
+        //   collection(db, "filters"),
+        //   where("userId", "==", currentUser.uid),
+        //   where("location", "==", location),
+        //   where("radius", "==", radius),
+        //   where("cuisine", "==", cuisine),
+        //   where("reviewCount", "==", reviewCount),
+        //   where("rating", "==", rating),
+        //   ...(minBudget !== undefined ? [where("minBudget", "==", minBudget)] : []),
+        //   ...(maxBudget !== undefined ? [where("maxBudget", "==", maxBudget)] : [])
+        // )
 
-        const querySnapshot = await getDocs(q)
+        // const querySnapshot = await getDocs(q)
 
-        if (!querySnapshot.empty) {
+        // if (!querySnapshot.empty) {
+        //   alert("同じ条件が既に保存されています。")
+        //   return
+        // }
+
+        // await addDoc(collection(db, "filters"), filterData)
+        // alert("お気に入り条件が保存されました！")
+        const res = await addFilter(filterData)
+        if (res.dup) {
           alert("同じ条件が既に保存されています。")
           return
         }
-
-        await addDoc(collection(db, "filters"), filterData)
         alert("お気に入り条件が保存されました！")
-
         fetchSavedFilters()
       } catch (error) {
         if (error instanceof Error) {
@@ -203,13 +209,8 @@ const RestaurantFilter: React.FC<FilterProps> = ({ handleResultsUpdate }) => {
   const fetchSavedFilters = async () => {
     if (!currentUser) return
     try {
-      const q = query(collection(db, "filters"), where("userId", "==", currentUser.uid))
-      const querySnapshot = await getDocs(q)
-      const filtersList: any[] = []
-      querySnapshot.forEach((doc) => {
-        filtersList.push({ id: doc.id, ...doc.data() })
-      })
-      setSavedFilters(filtersList)
+      const list = await fetchFilters(currentUser.uid)
+      setSavedFilters(list)
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error fetching filters: ", error.message)

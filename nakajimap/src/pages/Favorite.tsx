@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
-import { collection, getDocs, query, where } from "firebase/firestore"
-import { db } from "../firebase"
+// import { collection, getDocs, query, where } from "firebase/firestore"
+// import { db } from "../firebase"
+import { fetchFavorites } from "../lib/favorites"
 import FavoriteMap from "../components/FavoriteMap"
 import FavoriteTable from "../components/FavoriteTable"
 import { useAuth } from "../AuthContext"
@@ -21,23 +22,28 @@ const Favorite: React.FC = () => {
   // ここでFavoriteを検索してFavoriteMapとFavoriteTableに渡す
   useEffect(() => {
     if (!currentUser) return
-    console.log()
-    const fetchFavorites = async () => {
-      const q = query(collection(db, "favorite"), where("userId", "==", currentUser.uid))
-      const querySnapshot = await getDocs(q)
-      console.log(`querySnapshot ${querySnapshot}`)
-
-      const favoritesList: any[] = []
-      querySnapshot.forEach((doc) => {
-        console.log(doc.data())
-        favoritesList.push({ id: doc.id, ...doc.data() })
+  
+    fetchFavorites(currentUser.uid)
+      .then(raw => {
+        // geometry が文字列ならパース
+        const parsed = raw.map(item => {
+          const geom = typeof item.geometry === 'string'
+            ? JSON.parse(item.geometry)
+            : item.geometry
+  
+          return {
+            ...item,
+            lat: geom.location.lat,
+            lng: geom.location.lng,
+          }
+        })
+        setFavorites(parsed)
       })
-      console.log(`favoritesList ${favoritesList}`)
-      setFavorites(favoritesList)
-    }
-
-    fetchFavorites()
+      .catch(err => {
+        console.error('fetchFavorites エラー', err)
+      })
   }, [currentUser])
+  
 
   return (
     <div>

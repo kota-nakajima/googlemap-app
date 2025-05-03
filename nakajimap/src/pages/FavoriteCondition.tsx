@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { db } from "../firebase"
 import { Box, TextField, Typography, Button } from "@mui/material"
-import { query, where, collection, getDocs, doc, deleteDoc } from "firebase/firestore"
+import { fetchFilters, deleteFilter } from "../lib/filters"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../AuthContext"
 
@@ -23,22 +22,9 @@ const FavoriteCondition: React.FC = () => {
 
   const fetchSavedFilters = async () => {
     if (!currentUser) return
-    console.log("fetchSavedFilters function called")
-    try {
-      const q = query(collection(db, "filters"), where("userId", "==", currentUser.uid))
-      const querySnapshot = await getDocs(q)
-      const filtersList: any[] = []
-      querySnapshot.forEach((doc) => {
-        filtersList.push({ id: doc.id, ...doc.data() })
-      })
-      setSavedFilters(filtersList)
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error fetching filters: ", error.message)
-      } else {
-        console.error("An unknown error occurred")
-      }
-    }
+    const list = await fetchFilters(currentUser.uid)
+    setSavedFilters(list)
+
   }
 
   const handleSearch = (filter: any) => {
@@ -48,8 +34,7 @@ const FavoriteCondition: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const filterDoc = doc(db, "filters", id)
-      await deleteDoc(filterDoc)
+      await deleteFilter(id)
       setSavedFilters(savedFilters.filter((filter) => filter.id !== id))
     } catch (error) {
       console.error("Error deleting document: ", error)

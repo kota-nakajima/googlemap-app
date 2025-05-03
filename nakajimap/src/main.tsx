@@ -1,13 +1,18 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
+import { BrowserRouter } from "react-router-dom"
 import App from "./App"
+import './css/common.css'
 
+const basename = import.meta.env.DEV ? "/" : "/nakajimap"
 const container = document.getElementById("root")
 if (container) {
   const root = ReactDOM.createRoot(container)
   root.render(
     <React.StrictMode>
-      <App />
+      <BrowserRouter basename={basename}>
+        <App />
+      </BrowserRouter>
     </React.StrictMode>
   )
 } else {
