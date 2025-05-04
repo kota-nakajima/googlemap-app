@@ -67,6 +67,9 @@ export const searchNearbyRestaurants = (
               // すべてのページの結果を取得し終えたらresolveする
               resolve(allResults)
             }
+          } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+            // 検索結果がゼロ件のときは空配列で返す
+            resolve([])
           } else {
             reject(new Error("PlacesService was not successful for the following reason: " + status))
           }

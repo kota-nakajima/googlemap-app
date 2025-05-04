@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { styled } from "@mui/material/styles"
+import { Typography } from "@mui/material"
 import { toggleFavorite } from "../lib/favorites"
 import { useAuth } from "../AuthContext"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
@@ -109,7 +110,26 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedRows.map((row) => (
+          {sortedRows.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={4}                      // 列数分だけまたぐ
+                align="center"                   // 水平中央寄せ
+                sx={{
+                  height: 380,                   // お好みで高さを指定
+                  verticalAlign: 'middle',       // 垂直中央寄せ
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                >
+                  お気に入り店舗が保存されていません
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ) : (
+          sortedRows.map((row) => (
             <TableRow key={row.place_id} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
               <TableCell align="left">{row.n_review}</TableCell>
               <TableCell component="th" scope="row">
@@ -127,7 +147,9 @@ const FavoriteTable: React.FC<TableProps> = ({ favorites, onShopClick }) => {
                 />
               </TableCell>
             </TableRow>
-          ))}
+          )))
+          }
+          
         </TableBody>
       </Table>
     </TableContainer>

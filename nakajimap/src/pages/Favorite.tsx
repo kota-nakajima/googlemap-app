@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-// import { collection, getDocs, query, where } from "firebase/firestore"
-// import { db } from "../firebase"
+import { Box, CircularProgress, Typography } from "@mui/material"
 import { fetchFavorites } from "../lib/favorites"
 import FavoriteMap from "../components/FavoriteMap"
 import FavoriteTable from "../components/FavoriteTable"
@@ -9,7 +8,7 @@ import "../css/common.css"
 
 const Favorite: React.FC = () => {
   const { currentUser } = useAuth()
-  const [favorites, setFavorites] = useState<any[]>([])
+  const [favorites, setFavorites] = useState<any[] | null>(null)
 
   const mapRef = useRef<{ openInfoWindow: (placeId: string) => void }>(null)
 
@@ -21,16 +20,14 @@ const Favorite: React.FC = () => {
 
   // ここでFavoriteを検索してFavoriteMapとFavoriteTableに渡す
   useEffect(() => {
-    if (!currentUser) return
-  
-    fetchFavorites(currentUser.uid)
-      .then(raw => {
-        // geometry が文字列ならパース
+    const load = async () => {
+      if (!currentUser) return
+      try {
+        const raw = await fetchFavorites(currentUser.uid)
         const parsed = raw.map(item => {
           const geom = typeof item.geometry === 'string'
             ? JSON.parse(item.geometry)
             : item.geometry
-  
           return {
             ...item,
             lat: geom.location.lat,
@@ -38,11 +35,21 @@ const Favorite: React.FC = () => {
           }
         })
         setFavorites(parsed)
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('fetchFavorites エラー', err)
-      })
+        setFavorites([])
+      }
+    }
+    load()
   }, [currentUser])
+
+  if (favorites === null) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
   
 
   return (
@@ -54,7 +61,13 @@ const Favorite: React.FC = () => {
           </div>
           <div className="result-items">
             <div className="result-table">
+              {favorites.length === 0 ? (
+                <Typography variant="body1" align="center" sx={{ mt: 4, color: 'text.secondary' }}>
+                  お気に入りが登録されていません
+                </Typography>
+              ) : (
               <FavoriteTable favorites={favorites} onShopClick={handleShopClick} />
+              )}
             </div>
             <div className="result-map">
               <FavoriteMap ref={mapRef} favorites={favorites} onMarkerClick={handleShopClick} />

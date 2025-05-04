@@ -28,5 +28,13 @@ if ($max!=='') { $sql.=' AND maxBudget=?'; $params[]=$max; }
 
 $stmt=db()->prepare($sql);
 $stmt->execute($params);
-echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (count($rows) === 0) {
+  echo json_encode([]); 
+  exit;
+}
+
+echo json_encode($rows);
 ?>
