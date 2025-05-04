@@ -26,7 +26,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./nakajimap:/app           # ソースをマウント
+      - ./nakajimap:/app:cached           # ソースをマウント
       - /app/node_modules          # node_modules をコンテナ側に保持
     environment:
       - CHOKIDAR_USEPOLLING=1
@@ -69,13 +69,18 @@ services:
       context: .
       dockerfile: Dockerfile.api
     volumes:
-      - ./nakajimap/dist:/var/www/html # React の静的ファイルをここにも共有 
+      - ./nakajimap/dist:/var/www/html 
       - ./nakajimap/api:/var/www/html/api
       - ./apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
     depends_on:
       - db
     ports:
       - "8081:80" # 例: PHP API をローカル 8081 に公開
+    environment:
+      - DB_HOST=db
+      - DB_NAME=shop_app
+      - DB_USER=shopuser
+      - DB_PASS=secretpass
 
   # ③ 追加: MariaDB
   db:
